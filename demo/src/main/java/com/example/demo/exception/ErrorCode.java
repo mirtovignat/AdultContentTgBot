@@ -1,0 +1,13 @@
+package com.example.demo.exception;
+
+public enum ErrorCode {
+    USER_ALREADY_REGISTERED,
+    USER_NOT_FOUND,
+
+    PROMO_CODE_NOT_FOUND,
+    PROMO_CODE_EXPIRED,
+    PROMO_CODE_ALREADY_USED,
+    PROMO_CODE_LIMIT_REACHED,
+    PROMO_CODE_INACTIVE,
+    PROMO_CODE_DUPLICATE
+}

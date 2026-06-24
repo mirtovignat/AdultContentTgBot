@@ -1,0 +1,34 @@
+bonus:
+  cooldown-seconds: 10800
+telegram:
+  bot:
+    token: "8810189894:AAHcz7w0sYY04K_-ZfqHbqju5e4HB1ycZYg"
+    username: "the_night_dream_bot"
+spring:
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      indent-output: true
+    deserialization:
+      fail-on-unknown-properties: true
+    property-naming-strategy: SNAKE_CASE
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/nightdreambot}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:buyfn2008}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    open-in-view: false
+
+server:
+  port: 8080
+
+admin:
+  chat-id: 1210667437
+
