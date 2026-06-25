@@ -1,7 +1,8 @@
-package com.example.demo.handler;
+package com.example.demo.handler.user;
 
 import com.example.demo.entity.User;
 import com.example.demo.entity.Role;
+import com.example.demo.handler.Handler;
 import com.example.demo.keyboard.ReplyKeyboardFactory;
 import com.example.demo.service.UserService;
 import lombok.RequiredArgsConstructor;

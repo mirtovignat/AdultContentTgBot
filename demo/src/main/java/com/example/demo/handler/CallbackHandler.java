@@ -4,9 +4,13 @@ import com.example.demo.data_format.TimeFormater;
 import com.example.demo.dto.BonusResult;
 import com.example.demo.keyboard.InlineKeyboardFactory;
 import com.example.demo.service.BonusService;
+import com.example.demo.service.InvoiceSender;
+import com.example.demo.service.StarsPaymentService;
+import com.example.demo.service.StarsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.invoices.SendInvoice;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -20,9 +24,13 @@ public class CallbackHandler implements Handler {
     private final BonusService bonusService;
     private final InlineKeyboardFactory keyboardFactory;
     private final TimeFormater timeFormater;
+    private final StarsService starsService;
+    private final StarsPaymentService starsPaymentService;
+    private final InvoiceSender invoiceSender; // ✅ ВОТ ЭТО ТЫ ЗАБЫЛ
 
     @Override
     public List<Object> handle(Update update) {
+
         if (!update.hasCallbackQuery()) {
             return List.of();
         }
@@ -32,58 +40,65 @@ public class CallbackHandler implements Handler {
 
         AnswerCallbackQuery answer = new AnswerCallbackQuery();
         answer.setCallbackQueryId(callback.getId());
-        answer.setShowAlert(false);
 
         Long chatId = callback.getMessage().getChatId();
         Integer messageId = callback.getMessage().getMessageId();
 
-        if ("UPDATE_TIME".equals(data)) {
-            long leftSeconds = bonusService.getLeftSeconds(chatId);
-            EditMessageText editMessage = getEditMessageText(leftSeconds, chatId, messageId);
-            return List.of(answer, editMessage);
+        if (data.startsWith("BUY_STARS_")) {
+
+            int stars = Integer.parseInt(data.replace("BUY_STARS_", ""));
+            int bonus = starsService.getBonusForStars(stars);
+
+            String payload = starsPaymentService.generatePayload(bonus);
+
+            SendInvoice invoice = invoiceSender.createStarsInvoice(
+                    chatId,
+                    "Покупка бонусов",
+                    bonus + " бонусов за " + stars + " ⭐",
+                    stars,
+                    payload
+            );
+
+            return List.of(answer, invoice);
         }
 
-        if ("GET".equals(data)) {
-            BonusResult result = bonusService.claimBonus(chatId);
+        switch (data) {
 
-            EditMessageText editMessage = new EditMessageText();
-            editMessage.setChatId(chatId.toString());
-            editMessage.setMessageId(messageId);
-
-            if (result.allowed()) {
-                long leftSeconds = bonusService.getLeftSeconds(chatId);
-                String time = timeFormater.formatTime(leftSeconds);
-                editMessage.setText("🎁 Бонус получен!\nСледующий через: " + time);
-                editMessage.setReplyMarkup(keyboardFactory.getTimerUpdateButton());
-                answer.setText("Бонус зачислен!");
-            } else {
-                String time = timeFormater.formatTime(result.secondsLeft());
-                editMessage.setText("⏳ Бонус недоступен\nОсталось: " + time);
-                editMessage.setReplyMarkup(keyboardFactory.getTimerUpdateButton());
-                answer.setText("Бонус ещё не доступен");
+            case "BACK_TO_MAIN" -> {
+                answer.setText("Возврат в меню");
+                return List.of(answer);
             }
 
-            return List.of(answer, editMessage);
+            case "UPDATE_TIME" -> {
+                long left = bonusService.getLeftSeconds(chatId);
+
+                EditMessageText edit = new EditMessageText();
+                edit.setChatId(chatId.toString());
+                edit.setMessageId(messageId);
+
+                edit.setText(timeFormater.formatTime(left));
+                return List.of(answer, edit);
+            }
+
+            case "GET" -> {
+                BonusResult result = bonusService.claimBonus(chatId);
+
+                EditMessageText edit = new EditMessageText();
+                edit.setChatId(chatId.toString());
+                edit.setMessageId(messageId);
+
+                if (result.allowed()) {
+                    edit.setText("🎁 бонус получен!");
+                    answer.setText("OK");
+                } else {
+                    edit.setText("⏳ ещё нельзя");
+                    answer.setText("WAIT");
+                }
+
+                return List.of(answer, edit);
+            }
         }
 
         return List.of(answer);
     }
-
-    private EditMessageText getEditMessageText(long leftSeconds, Long chatId, Integer messageId) {
-        String time = timeFormater.formatTime(leftSeconds);
-
-        EditMessageText editMessage = new EditMessageText();
-        editMessage.setChatId(chatId.toString());
-        editMessage.setMessageId(messageId);
-
-        if (leftSeconds == 0) {
-            editMessage.setText("🎁 Бонус доступен! Нажмите «Забрать»");
-            editMessage.setReplyMarkup(keyboardFactory.getBonusWithUpdateButton());
-        } else {
-            editMessage.setText("⏳ Бонус недоступен\nОсталось: " + time);
-            editMessage.setReplyMarkup(keyboardFactory.getTimerUpdateButton());
-        }
-        return editMessage;
-    }
-
 }

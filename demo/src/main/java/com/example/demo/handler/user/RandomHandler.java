@@ -1,5 +1,6 @@
-package com.example.demo.handler;
+package com.example.demo.handler.user;
 
+import com.example.demo.handler.Handler;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;

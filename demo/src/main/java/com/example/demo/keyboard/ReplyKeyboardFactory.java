@@ -10,7 +10,6 @@ import java.util.List;
 public class ReplyKeyboardFactory {
 
     public ReplyKeyboardMarkup createMainKeyboard() {
-
         KeyboardRow row1 = new KeyboardRow();
         row1.add("Категории");
 
@@ -20,53 +19,30 @@ public class ReplyKeyboardFactory {
 
         KeyboardRow row3 = new KeyboardRow();
         row3.add("Промокод");
+        row3.add("Купить бонусы");
         row3.add("Поддержка");
 
         ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
-
-        keyboard.setKeyboard(List.of(
-                row1,
-                row2,
-                row3
-        ));
-
+        keyboard.setKeyboard(List.of(row1, row2, row3));
         keyboard.setResizeKeyboard(true);
         keyboard.setOneTimeKeyboard(false);
         keyboard.setSelective(true);
-
         return keyboard;
     }
 
     public ReplyKeyboardMarkup createAdminMainKeyboard() {
-
         KeyboardRow row1 = new KeyboardRow();
         row1.add("Категории");
 
         KeyboardRow row2 = new KeyboardRow();
         row2.add("Профиль");
-        row2.add("Бонус");
 
         KeyboardRow row3 = new KeyboardRow();
-        row3.add("Промокод");
-        row3.add("Поддержка");
-
-        KeyboardRow row4 = new KeyboardRow();
-        row4.add("Админ панель");
+        row3.add("Админ панель");
 
         ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
-
-        keyboard.setKeyboard(List.of(
-                row1,
-                row2,
-                row3,
-                row4
-        ));
-
+        keyboard.setKeyboard(List.of(row1, row2, row3));
         keyboard.setResizeKeyboard(true);
-        keyboard.setOneTimeKeyboard(false);
-        keyboard.setSelective(true);
-
         return keyboard;
     }
-
 }

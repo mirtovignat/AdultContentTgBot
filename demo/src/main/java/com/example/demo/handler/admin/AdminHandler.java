@@ -2,13 +2,10 @@ package com.example.demo.handler.admin;
 
 import com.example.demo.handler.Handler;
 import com.example.demo.keyboard.InlineKeyboardFactory;
-import com.example.demo.keyboard.ReplyKeyboardFactory;
 import com.example.demo.service.AdminService;
 import com.example.demo.service.PromoCodeService;
 import com.example.demo.state.AdminState;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -25,7 +22,6 @@ public class AdminHandler implements Handler {
     private final AdminService adminService;
     private final PromoCodeService promoCodeService;
     private final InlineKeyboardFactory inlineKeyboardFactory;
-    private final ReplyKeyboardFactory replyKeyboardFactory;
 
     private final Map<Long, AdminSession> sessions = new ConcurrentHashMap<>();
 
@@ -155,17 +151,6 @@ public class AdminHandler implements Handler {
         return msg;
     }
 
-    @Setter
-    @Getter
-    private static class AdminSession {
-        private AdminState state = AdminState.NONE;
-        private String tempCode;
-        private Long tempBonus;
-        private LocalDateTime tempExpiresAt;
-        private Long tempTargetChatId;
-
-    }
-
     public void startCreatingPromoCode(Long chatId) {
         AdminSession session = sessions.computeIfAbsent(chatId, k -> new AdminSession());
         session.setState(AdminState.CREATING_PROMOCODE_WAITING_CODE);
@@ -174,5 +159,13 @@ public class AdminHandler implements Handler {
     public void startAddingBonus(Long chatId) {
         AdminSession session = sessions.computeIfAbsent(chatId, k -> new AdminSession());
         session.setState(AdminState.ADDING_BONUS_WAITING_USER);
+    }
+
+    public boolean isInAdminDialog(Long chatId) {
+        return sessions.containsKey(chatId);
+    }
+
+    public void cancel(Long chatId) {
+        sessions.remove(chatId);
     }
 }

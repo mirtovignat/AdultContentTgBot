@@ -1,8 +1,11 @@
-package com.example.demo.handler;
+package com.example.demo.handler.user;
 
 import com.example.demo.data_format.TimeFormater;
+import com.example.demo.entity.Role;
+import com.example.demo.handler.Handler;
 import com.example.demo.keyboard.InlineKeyboardFactory;
 import com.example.demo.service.BonusService;
+import com.example.demo.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -17,6 +20,7 @@ public class BonusHandler implements Handler {
     private final BonusService bonusService;
     private final InlineKeyboardFactory keyboardFactory;
     private final TimeFormater timeFormater;
+    private final UserService userService;
 
     @Override
     public List<Object> handle(Update update) {
@@ -30,10 +34,13 @@ public class BonusHandler implements Handler {
         }
 
         Long chatId = update.getMessage().getChatId();
+        var user = userService.getByChatId(chatId);
+        if (user.getRole() == Role.ADMIN) {
+            return List.of(createForbiddenMessage(chatId));
+        }
+
         long leftSeconds = bonusService.getLeftSeconds(chatId);
-
         SendMessage sendMessage = getSendMessage(chatId, leftSeconds);
-
         return List.of(sendMessage);
     }
 
@@ -52,4 +59,10 @@ public class BonusHandler implements Handler {
         return sendMessage;
     }
 
+    private SendMessage createForbiddenMessage(Long chatId) {
+        SendMessage msg = new SendMessage();
+        msg.setChatId(chatId.toString());
+        msg.setText("❌ Эта функция недоступна для администратора.");
+        return msg;
+    }
 }

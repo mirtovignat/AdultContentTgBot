@@ -28,7 +28,7 @@ public class UserProfileDto {
                 "👤 Username: @" + getUsername() + "\n" +
                 "📛 Имя: " + getFirstName() + "\n" +
                 "📛 Фамилия: " + getLastName() + "\n\n" +
-                "🎁 Бонусы: " + getBonuses() + "\n" +
+                "🎁 Баланс: " + getBonuses() + "\n" +
                 "👥 Рефералы: " + getReferralsCount() + "\n" +
                 "🔗 Пригласил: " + (getReferredBy() == null ?
                 "Вы не были приглашены" : "Пользователь #" + getReferredBy()) +

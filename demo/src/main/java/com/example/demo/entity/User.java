@@ -1,9 +1,11 @@
 package com.example.demo.entity;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import org.telegram.telegrambots.meta.api.methods.CopyMessage;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
@@ -51,4 +53,5 @@ public class User extends AbstractEntity {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<PornFile> files = new LinkedHashSet<>();
+
 }

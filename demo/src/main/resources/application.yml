@@ -1,9 +1,25 @@
 bonus:
   cooldown-seconds: 10800
+
+stars:
+  offers:
+    - stars: 5
+      bonus: 100
+    - stars: 10
+      bonus: 250
+    - stars: 20
+      bonus: 600
+    - stars: 50
+      bonus: 2000
+
 telegram:
+  telegram:
+    payment:
+      provider-token: "ТВОЙ_PROVIDER_TOKEN_ОТ_PAYMENTS"
   bot:
     token: "8810189894:AAHcz7w0sYY04K_-ZfqHbqju5e4HB1ycZYg"
     username: "the_night_dream_bot"
+
 spring:
   jackson:
     serialization:
@@ -31,4 +47,3 @@ server:
 
 admin:
   chat-id: 1210667437
-

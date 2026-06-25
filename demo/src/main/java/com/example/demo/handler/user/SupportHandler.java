@@ -1,5 +1,8 @@
-package com.example.demo.handler;
+package com.example.demo.handler.user;
 
+import com.example.demo.entity.Role;
+import com.example.demo.handler.Handler;
+import com.example.demo.service.UserService;
 import com.example.demo.state.UserState;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +22,7 @@ public class SupportHandler implements Handler {
     private Long adminChatId;
 
     private final Map<Long, UserState> userStates = new ConcurrentHashMap<>();
+    private final UserService userService;
 
     @Override
     public List<Object> handle(Update update) {
@@ -29,8 +33,12 @@ public class SupportHandler implements Handler {
         Long chatId = update.getMessage().getChatId();
         String text = update.getMessage().getText();
 
-        // Если пользователь нажал кнопку "Поддержка" – переключаем состояние
         if ("Поддержка".equals(text)) {
+            var user = userService.getByChatId(chatId);
+            if (user.getRole() == Role.ADMIN) {
+                return List.of(createForbiddenMessage(chatId));
+            }
+
             userStates.put(chatId, UserState.SUPPORT);
             SendMessage instruction = new SendMessage();
             instruction.setChatId(chatId.toString());
@@ -38,29 +46,22 @@ public class SupportHandler implements Handler {
             return List.of(instruction);
         }
 
-        // Если пользователь в состоянии SUPPORT – пересылаем его сообщение админу
         if (userStates.getOrDefault(chatId, UserState.NONE) == UserState.SUPPORT) {
-            // Отправляем подтверждение пользователю
             SendMessage confirm = new SendMessage();
             confirm.setChatId(chatId.toString());
             confirm.setText("✅ Ваше сообщение отправлено администратору.");
 
-            // Отправляем сообщение админу
             SendMessage adminMsg = new SendMessage();
             adminMsg.setChatId(adminChatId.toString());
-            // Узнаем имя пользователя (можно из базы, но упростим – используем first_name)
             String firstName = update.getMessage().getFrom().getFirstName();
             String username = update.getMessage().getFrom().getUserName();
             String userInfo = (username != null ? "@" + username : firstName);
             adminMsg.setText("✉️ Сообщение от " + userInfo + " (ID: " + chatId + "):\n\n" + text);
 
-            // Сбрасываем состояние
             userStates.remove(chatId);
-
             return List.of(confirm, adminMsg);
         }
 
-        // Если пользователь не в состоянии SUPPORT и это не команда "Поддержка" – ничего не делаем
         return List.of();
     }
 
@@ -70,5 +71,12 @@ public class SupportHandler implements Handler {
 
     public void cancelSupport(Long chatId) {
         userStates.remove(chatId);
+    }
+
+    private SendMessage createForbiddenMessage(Long chatId) {
+        SendMessage msg = new SendMessage();
+        msg.setChatId(chatId.toString());
+        msg.setText("❌ Эта функция недоступна для администратора.");
+        return msg;
     }
 }

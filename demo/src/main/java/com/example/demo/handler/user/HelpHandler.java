@@ -1,7 +1,8 @@
-package com.example.demo.handler;
+package com.example.demo.handler.user;
 
 import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
+import com.example.demo.handler.Handler;
 import com.example.demo.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -29,15 +30,20 @@ public class HelpHandler implements Handler {
         stringBuilder.append("/cancel – Отменить действие\n");
         stringBuilder.append("Категории – Выбор категории\n");
         stringBuilder.append("Профиль – Ваш профиль\n");
-        stringBuilder.append("Бонус – Забрать бонус\n");
-        stringBuilder.append("Поддержка – Написать админу\n");
+
+        if (!isAdmin) {
+            stringBuilder.append("Бонус – Забрать бонус\n");
+            stringBuilder.append("Промокод – Активировать промокод\n");
+            stringBuilder.append("Поддержка – Написать админу\n");
+        }
+
         if (isAdmin) {
             stringBuilder.append("\n👑 Админ-панель (кнопка в меню)\n");
         }
 
-        SendMessage msg = new SendMessage();
-        msg.setChatId(chatId.toString());
-        msg.setText(stringBuilder.toString());
-        return List.of(msg);
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId.toString());
+        sendMessage.setText(stringBuilder.toString());
+        return List.of(sendMessage);
     }
 }

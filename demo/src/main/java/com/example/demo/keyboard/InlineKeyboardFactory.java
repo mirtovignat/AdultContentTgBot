@@ -1,5 +1,6 @@
 package com.example.demo.keyboard;
 
+import com.example.demo.dto.StarsOffer;
 import com.example.demo.entity.BonusButton;
 import com.example.demo.entity.Category;
 import com.example.demo.entity.PromoCode;
@@ -70,6 +71,18 @@ public class InlineKeyboardFactory {
             rows.add(List.of(deleteBtn));
         }
         rows.add(List.of(createButton("🔙 Назад", "ADMIN_MAIN")));
+        return new InlineKeyboardMarkup(rows);
+    }
+
+    public InlineKeyboardMarkup getStarsOffersKeyboard(List<StarsOffer> offers) {
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        for (StarsOffer offer : offers) {
+            InlineKeyboardButton inlineKeyboardButton = new InlineKeyboardButton();
+            inlineKeyboardButton.setText(offer.stars() + " ⭐️ → " + offer.bonus() + " бонусов");
+            inlineKeyboardButton.setCallbackData("BUY_STARS_" + offer.stars());
+            rows.add(List.of(inlineKeyboardButton));
+        }
+        rows.add(List.of(createButton("🔙 Назад", "BACK_TO_MAIN")));
         return new InlineKeyboardMarkup(rows);
     }
 }

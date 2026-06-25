@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
 import com.example.demo.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +18,15 @@ public class UserService {
     }
 
     public User getByChatId(Long chatId) {
-        return userRepository.findByChatIdOrThrow(chatId);
+        return userRepository.findByChatId(chatId)
+                .orElseGet(() -> {
+                    User user = new User();
+                    user.setChatId(chatId);
+                    user.setBonuses(0L);
+                    user.setReferralsCount(0L);
+                    user.setRole(Role.USER);
+                    return userRepository.save(user);
+                });
     }
 
     public void register(Update update) {
@@ -31,6 +40,8 @@ public class UserService {
         var tgUser = update.getMessage().getFrom();
 
         User user = new User();
+        user.setChatId(chatId);
+        user.setBonuses(0L);
         user.setChatId(chatId);
         user.setTelegramId(tgUser.getId());
         user.setUsername(tgUser.getUserName());
