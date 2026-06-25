@@ -2,7 +2,6 @@ package com.example.demo.handler;
 
 import com.example.demo.entity.User;
 import com.example.demo.entity.Role;
-import com.example.demo.exception.UserAlreadyRegisteredException;
 import com.example.demo.keyboard.ReplyKeyboardFactory;
 import com.example.demo.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +20,7 @@ public class StartHandler implements Handler {
     @Override
     public List<Object> handle(Update update) {
         Long chatId = update.getMessage().getChatId();
-        try {
-            userService.register(update);
-        } catch (UserAlreadyRegisteredException ignored) {}
+        userService.register(update);
         User user = userService.getByChatId(chatId);
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId.toString());

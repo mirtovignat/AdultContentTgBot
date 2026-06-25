@@ -2,5 +2,6 @@ package com.example.demo.state;
 
 public enum UserState {
     NONE,
-    SUPPORT
+    SUPPORT,
+    PROMO_CODE
 }

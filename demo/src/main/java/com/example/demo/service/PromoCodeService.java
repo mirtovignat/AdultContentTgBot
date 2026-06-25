@@ -23,21 +23,6 @@ public class PromoCodeService {
     private final UserRepository userRepository;
 
     @Transactional
-    public PromoCode createPromoCode(String code, Long bonusAmount, LocalDateTime expiresAt, Long usageLimit) {
-        if (promoCodeRepository.existsByCode(code)) {
-            throw new PromoCodeDuplicateException();
-        }
-        PromoCode promoCode = new PromoCode();
-        promoCode.setCode(code);
-        promoCode.setBonusAmount(bonusAmount);
-        promoCode.setExpiresAt(expiresAt);
-        promoCode.setUsageLimit(usageLimit);
-        promoCode.setUsedCount(0L);
-        promoCode.setIsActive(true);
-        return promoCodeRepository.save(promoCode);
-    }
-
-    @Transactional
     public void deletePromoCode(Long id) {
         promoCodeRepository.deleteById(id);
     }
@@ -48,9 +33,32 @@ public class PromoCodeService {
                 .toList();
     }
 
+    @Transactional
+    public PromoCode createPromoCode(
+            String code,
+            Long bonusAmount,
+            LocalDateTime expiresAt,
+            Long usageLimit
+    ) {
+        if (promoCodeRepository.existsByCode(code)) {
+            throw new BusinessException(ErrorCode.PROMO_CODE_DUPLICATE);
+        }
+
+        PromoCode promoCode = new PromoCode();
+        promoCode.setCode(code);
+        promoCode.setBonusAmount(bonusAmount);
+        promoCode.setExpiresAt(expiresAt);
+        promoCode.setUsageLimit(usageLimit);
+        promoCode.setUsedCount(0L);
+        promoCode.setIsActive(true);
+
+        return promoCodeRepository.save(promoCode);
+    }
+
     public PromoCode findByCode(String code) {
         return promoCodeRepository.findByCode(code)
-                .orElseThrow(PromoCodeNotFoundException::new);
+                .orElseThrow(() ->
+                        new BusinessException(ErrorCode.PROMO_CODE_NOT_FOUND));
     }
 
     @Transactional
@@ -58,22 +66,23 @@ public class PromoCodeService {
         PromoCode promoCode = findByCode(code);
 
         if (!promoCode.getIsActive()) {
-            throw new PromoCodeInactiveException();
+            throw new BusinessException(ErrorCode.PROMO_CODE_INACTIVE);
         }
 
-        if (promoCode.getExpiresAt() != null && promoCode.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new PromoCodeExpiredException();
+        if (promoCode.getExpiresAt() != null
+                && promoCode.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new BusinessException(ErrorCode.PROMO_CODE_EXPIRED);
         }
 
-        if (promoCode.getUsageLimit() != null &&
-                promoCode.getUsedCount() >= promoCode.getUsageLimit()) {
-            throw new PromoCodeLimitReachedException();
+        if (promoCode.getUsageLimit() != null
+                && promoCode.getUsedCount() >= promoCode.getUsageLimit()) {
+            throw new BusinessException(ErrorCode.PROMO_CODE_LIMIT_REACHED);
         }
 
         User user = userRepository.findByChatIdOrThrow(chatId);
 
         if (promoCodeUsageRepository.existsByPromoCodeAndUser(promoCode, user)) {
-            throw new PromoCodeAlreadyUsedException();
+            throw new BusinessException(ErrorCode.PROMO_CODE_ALREADY_USED);
         }
 
         user.setBonuses(user.getBonuses() + promoCode.getBonusAmount());
@@ -85,6 +94,100 @@ public class PromoCodeService {
         promoCodeUsageRepository.save(usage);
 
         promoCode.setUsedCount(promoCode.getUsedCount() + 1);
+        promoCodeRepository.save(promoCode);
+    }
+
+    @Transactional
+    public void activatePromoCode(
+            Long chatId,
+            String code
+    ) {
+
+        PromoCode promoCode = findByCode(code);
+
+        validatePromoCode(
+                promoCode,
+                chatId
+        );
+
+        applyPromoCode(
+                promoCode,
+                chatId
+        );
+    }
+
+    private void validatePromoCode(
+            PromoCode promoCode,
+            Long chatId
+    ) {
+
+        if (!promoCode.getIsActive()) {
+            throw new BusinessException(
+                    ErrorCode.PROMO_CODE_INACTIVE
+            );
+        }
+
+        if (
+                promoCode.getExpiresAt() != null
+                        && promoCode.getExpiresAt()
+                        .isBefore(LocalDateTime.now())
+        ) {
+            throw new BusinessException(
+                    ErrorCode.PROMO_CODE_EXPIRED
+            );
+        }
+
+        if (
+                promoCode.getUsageLimit() != null
+                        && promoCode.getUsedCount()
+                        >= promoCode.getUsageLimit()
+        ) {
+            throw new BusinessException(
+                    ErrorCode.PROMO_CODE_LIMIT_REACHED
+            );
+        }
+
+        User user =
+                userRepository.findByChatIdOrThrow(chatId);
+
+        if (
+                promoCodeUsageRepository.existsByPromoCodeAndUser(
+                        promoCode,
+                        user
+                )
+        ) {
+            throw new BusinessException(
+                    ErrorCode.PROMO_CODE_ALREADY_USED
+            );
+        }
+    }
+
+    private void applyPromoCode(
+            PromoCode promoCode,
+            Long chatId
+    ) {
+
+        User user =
+                userRepository.findByChatIdOrThrow(chatId);
+
+        user.setBonuses(
+                user.getBonuses()
+                        + promoCode.getBonusAmount()
+        );
+
+        userRepository.save(user);
+
+        PromoCodeUsage usage = new PromoCodeUsage();
+
+        usage.setPromoCode(promoCode);
+        usage.setUser(user);
+
+        promoCodeUsageRepository.save(usage);
+
+        promoCode.setUsedCount(
+                promoCode.getUsedCount() + 1
+        );
+
         promoCodeRepository.save(promoCode);
     }
 }

@@ -15,11 +15,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class SupportHandler implements Handler {
 
-    // chat_id администратора (твой)
     @Value("${admin.chat-id:1210667437}")
     private Long adminChatId;
 
-    // Хранилище состояний пользователей
     private final Map<Long, UserState> userStates = new ConcurrentHashMap<>();
 
     @Override

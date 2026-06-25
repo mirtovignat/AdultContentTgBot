@@ -1,6 +1,8 @@
 package com.example.demo.dispatcher;
 
 import com.example.demo.handler.*;
+import com.example.demo.handler.admin.AdminCallbackHandler;
+import com.example.demo.handler.admin.AdminHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;

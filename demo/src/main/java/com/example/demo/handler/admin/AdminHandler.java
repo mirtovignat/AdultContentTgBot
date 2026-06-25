@@ -1,5 +1,6 @@
-package com.example.demo.handler;
+package com.example.demo.handler.admin;
 
+import com.example.demo.handler.Handler;
 import com.example.demo.keyboard.InlineKeyboardFactory;
 import com.example.demo.keyboard.ReplyKeyboardFactory;
 import com.example.demo.service.AdminService;
