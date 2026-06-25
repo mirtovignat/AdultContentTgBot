@@ -5,6 +5,7 @@ import com.example.demo.entity.User;
 import com.example.demo.handler.CallbackHandler;
 import com.example.demo.handler.admin.AdminCallbackHandler;
 import com.example.demo.handler.admin.AdminHandler;
+import com.example.demo.handler.admin.UploadHandler;
 import com.example.demo.handler.user.*;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.StarsPaymentService;
@@ -35,6 +36,7 @@ public class UpdateDispatcher {
     private final UserService userService;
     private final UserRepository userRepository;
     private final StarsPaymentService starsPaymentService;
+    private final UploadHandler uploadHandler;
 
     public List<Object> dispatch(Update update) {
         if (update.hasCallbackQuery()) {
@@ -161,6 +163,13 @@ public class UpdateDispatcher {
                     yield List.of(createForbiddenMessage(chatId));
                 }
                 yield adminHandler.handle(update);
+            }
+
+            case "Загрузить файл" -> {
+                if (role != Role.ADMIN) {
+                    yield List.of(createForbiddenMessage(chatId));
+                }
+                yield uploadHandler.handle(update);
             }
 
             default -> null;

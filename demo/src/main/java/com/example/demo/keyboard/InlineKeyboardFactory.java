@@ -6,6 +6,7 @@ import com.example.demo.entity.Category;
 import com.example.demo.entity.PromoCode;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.ArrayList;
@@ -83,6 +84,15 @@ public class InlineKeyboardFactory {
             rows.add(List.of(inlineKeyboardButton));
         }
         rows.add(List.of(createButton("🔙 Назад", "BACK_TO_MAIN")));
+        return new InlineKeyboardMarkup(rows);
+    }
+
+    public InlineKeyboardMarkup getUploadCategoryKeyboard() {
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+        for (Category category : Category.values()) {
+            rows.add(List.of(createButton(category.name(), "UPLOAD_CATEGORY_" + category.name())));
+        }
+        rows.add(List.of(createButton("🔙 Отмена", "UPLOAD_CANCEL")));
         return new InlineKeyboardMarkup(rows);
     }
 }

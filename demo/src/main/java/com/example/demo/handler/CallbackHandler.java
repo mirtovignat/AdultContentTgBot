@@ -45,10 +45,8 @@ public class CallbackHandler implements Handler {
         Integer messageId = callback.getMessage().getMessageId();
 
         if (data.startsWith("BUY_STARS_")) {
-
             int stars = Integer.parseInt(data.replace("BUY_STARS_", ""));
             int bonus = starsService.getBonusForStars(stars);
-
             String payload = starsPaymentService.generatePayload(bonus);
 
             SendInvoice invoice = invoiceSender.createStarsInvoice(

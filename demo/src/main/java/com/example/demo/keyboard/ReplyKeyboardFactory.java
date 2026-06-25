@@ -25,8 +25,6 @@ public class ReplyKeyboardFactory {
         ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
         keyboard.setKeyboard(List.of(row1, row2, row3));
         keyboard.setResizeKeyboard(true);
-        keyboard.setOneTimeKeyboard(false);
-        keyboard.setSelective(true);
         return keyboard;
     }
 
@@ -39,6 +37,7 @@ public class ReplyKeyboardFactory {
 
         KeyboardRow row3 = new KeyboardRow();
         row3.add("Админ панель");
+        row3.add("Загрузить файл");
 
         ReplyKeyboardMarkup keyboard = new ReplyKeyboardMarkup();
         keyboard.setKeyboard(List.of(row1, row2, row3));

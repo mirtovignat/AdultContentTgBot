@@ -13,12 +13,18 @@ stars:
       bonus: 2000
 
 telegram:
-  telegram:
-    payment:
-      provider-token: "ТВОЙ_PROVIDER_TOKEN_ОТ_PAYMENTS"
+  payment:
+    provider-token: "ТВОЙ_PROVIDER_TOKEN_ОТ_PAYMENTS"
+
   bot:
     token: "8810189894:AAHcz7w0sYY04K_-ZfqHbqju5e4HB1ycZYg"
     username: "the_night_dream_bot"
+
+minio:
+  url: http://localhost:9000
+  access-key: admin
+  secret-key: password123
+  bucket: porn-files
 
 spring:
   jackson:
@@ -38,7 +44,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
     open-in-view: false
 

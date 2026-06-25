@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.invoices.SendInvoice;
 import org.telegram.telegrambots.meta.api.objects.payments.LabeledPrice;
@@ -8,7 +7,6 @@ import org.telegram.telegrambots.meta.api.objects.payments.LabeledPrice;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 public class InvoiceSender {
 
     public SendInvoice createStarsInvoice(Long chatId,
@@ -18,7 +16,7 @@ public class InvoiceSender {
                                           String payload) {
 
         List<LabeledPrice> prices = List.of(
-                new LabeledPrice("Stars", stars * 100)
+                new LabeledPrice("Stars", stars)
         );
 
         SendInvoice invoice = new SendInvoice();
@@ -28,6 +26,7 @@ public class InvoiceSender {
         invoice.setPayload(payload);
         invoice.setCurrency("XTR");
         invoice.setPrices(prices);
+        invoice.setProviderToken("STARS");
 
         return invoice;
     }

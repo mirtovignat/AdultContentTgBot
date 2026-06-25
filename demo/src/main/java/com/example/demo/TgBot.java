@@ -1,7 +1,5 @@
 package com.example.demo;
 
-import org.telegram.telegrambots.meta.api.methods.invoices.SendInvoice;
-import org.telegram.telegrambots.meta.api.objects.payments.LabeledPrice;
 import com.example.demo.dispatcher.UpdateDispatcher;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +9,13 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
+import org.telegram.telegrambots.meta.api.methods.invoices.SendInvoice;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
-
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
@@ -53,10 +52,14 @@ public class TgBot extends TelegramLongPollingBot {
                     execute(sendMessage);
                 } else if (response instanceof SendPhoto sendPhoto) {
                     execute(sendPhoto);
+                } else if (response instanceof SendVideo sendVideo) {
+                    execute(sendVideo);
                 } else if (response instanceof EditMessageText editMessageText) {
                     execute(editMessageText);
                 } else if (response instanceof AnswerCallbackQuery answerCallbackQuery) {
                     execute(answerCallbackQuery);
+                } else if (response instanceof SendInvoice sendInvoice) {
+                    execute(sendInvoice);
                 }
             } catch (TelegramApiException e) {
                 e.printStackTrace();
